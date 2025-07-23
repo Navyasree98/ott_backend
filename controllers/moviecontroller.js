@@ -2,10 +2,10 @@ const Movie = require("../models/movie");
 
 // Create a new movie
 exports.addMovie = async (req, res) => {
-    try {
+  try {
     const lastMovie = await Movie.findOne()
   .sort({ createdAt: -1 }) // most recent first
-        .lean();
+  .lean();
   let newCode = "MOV_001"; // default
 
   if (lastMovie && /^MOV_(\d+)$/.test(lastMovie.code)) {
@@ -17,14 +17,13 @@ exports.addMovie = async (req, res) => {
 
 console.log("New movie code:", newCode);
     const movie = new Movie({ ...req.body, code: newCode });
-      await movie.save();
-      res.status(201).json({ message: "Movie added successfully", movie });
-    } catch (error) {
-      console.error("Error adding movie:", error);
-      res.status(400).json({ error: error.message });
-    }
-  };
-
+    await movie.save();
+    res.status(201).json({ message: "Movie added successfully", movie });
+  } catch (error) {
+    console.error("Error adding movie:", error);
+    res.status(400).json({ error: error.message });
+  }
+};
 // Get all movies
 exports.getAllMovies = async (req, res) => {
   try {
