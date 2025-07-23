@@ -3,24 +3,20 @@ const Movie = require("../models/movie");
 // Create a new movie
 exports.addMovie = async (req, res) => {
     try {
-        const lastMovie = await Movie.findOne({ code: { $regex: /^MOV_\d+$/ } })
-        .sort({ code: -1 })
+    const lastMovie = await Movie.findOne()
+  .sort({ createdAt: -1 }) // most recent first
         .lean();
-        let codeNumber = 1;
-      if (lastMovie && lastMovie.code) {
-        const match = lastMovie.code.match(/MOV_(\d+)/);
-        if (match) {
-          codeNumber = parseInt(match[1]) + 1;
-        }
-      }
-     
-      // Create a new movie with auto-generated code
-      const movie = new Movie({
-        ...req.body,
-        code: `MOV_${codeNumber}`,
-      });
-  
-  
+  let newCode = "MOV_001"; // default
+
+  if (lastMovie && /^MOV_(\d+)$/.test(lastMovie.code)) {
+    const match = lastMovie.code.match(/^MOV_(\d+)$/);
+    const lastNumber = parseInt(match[1], 10);
+    const nextNumber = lastNumber + 1;
+  newCode = `MOV_${String(nextNumber).padStart(3, '0')}`;
+}
+
+console.log("New movie code:", newCode);
+    const movie = new Movie({ ...req.body, code: newCode });
       await movie.save();
       res.status(201).json({ message: "Movie added successfully", movie });
     } catch (error) {
